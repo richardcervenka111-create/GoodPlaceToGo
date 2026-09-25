@@ -260,7 +260,7 @@ function applyLang(){ document.documentElement.lang=lang; document.title=t("titl
 document.querySelectorAll(".lang button").forEach(x=>x.addEventListener("click",()=>{lang=x.dataset.l; try{localStorage.setItem(KEY,lang);}catch(e){} applyLang();}));
 
 /* live places from OpenStreetMap (Overpass) */
-const META={stamp:""}; const OVP="https://overpass-api.de/api/interpreter"; const CK="gptg-v1"; const BERN=[46.86,7.30,47.04,7.60];
+const META={stamp:""}; const OVP=["https://overpass-api.de/api/interpreter","https://overpass.kumi.systems/api/interpreter","https://overpass.private.coffee/api/interpreter"]; const CK="gptg-v2"; const BERN=[46.89,7.35,47.01,7.53];
 function toP(e){ const g=e.tags||{}; const c=g.shop==="farm"?"farm":(g.amenity==="cafe"?"cafe":(g.amenity==="restaurant"?"rest":null)); if(!c) return null;
   const lat=e.lat!=null?e.lat:(e.center&&e.center.lat), lon=e.lon!=null?e.lon:(e.center&&e.center.lon); if(lat==null||lon==null) return null;
   const f=[]; if(g.name) f.push(g.name); if(g.cuisine) f.push(g.cuisine.split(";")[0].replace(/_/g," ")); if(g.organic==="yes"||g.organic==="only") f.push("bio"); if(g.opening_hours) f.push(g.opening_hours);
@@ -271,9 +271,17 @@ function setData(list,stamp){ data.length=0; list.forEach(p=>data.push(p)); META
 function load(bbox,force){ const key=CK+":"+bbox.map(x=>(+x).toFixed(2)).join(",");
   if(!force){ try{ const c=JSON.parse(localStorage.getItem(key)||"null"); if(c&&Date.now()-c.t<864e5&&Array.isArray(c.p)){ setData(c.p,c.s); return; } }catch(e){} }
   $("meta").textContent=t("load"); const bb=bbox.map(x=>(+x).toFixed(4)).join(",");
-  const q=`[out:json][timeout:25];(nwr["shop"="farm"](${bb});nwr["amenity"="cafe"](${bb});nwr["amenity"="restaurant"](${bb}););out center tags;`;
-  fetch(OVP,{method:"POST",body:"data="+encodeURIComponent(q),referrerPolicy:"no-referrer"}).then(r=>r.ok?r.json():Promise.reject(r.status)).then(j=>{ const p=(j.elements||[]).map(toP).filter(Boolean); const st=((j.osm3s&&j.osm3s.timestamp_osm_base)||"").slice(0,10); setData(p,st); try{ localStorage.setItem(key,JSON.stringify({t:Date.now(),p,s:st})); }catch(e){} })
-    .catch(()=>{ $("meta").textContent=t("loadfail"); K.toast(t("loadfail")); }); }
+  const q=`[out:json][timeout:30];(nw["shop"="farm"](${bb});nw["amenity"="cafe"](${bb});nw["amenity"="restaurant"](${bb}););out center tags;`;
+  const seq=++loadSeq; let why="";
+  const tryAt=i=>{ if(i>=OVP.length) return Promise.reject(why||"all");
+    const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),40000);
+    return fetch(OVP[i],{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"data="+encodeURIComponent(q),referrerPolicy:"no-referrer",signal:ctl.signal})
+      .then(r=>{ clearTimeout(tm); if(!r.ok){ why="HTTP "+r.status; throw why; } return r.json(); })
+      .then(j=>{ if(!j||!Array.isArray(j.elements)) throw (why=j&&j.remark?"remark":"format"); return j; })
+      .catch(e=>{ clearTimeout(tm); if(!why) why=(e&&e.name==="AbortError")?"timeout":String(e&&e.message||e); return tryAt(i+1); }); };
+  tryAt(0).then(j=>{ if(seq!==loadSeq) return; const p=j.elements.map(toP).filter(Boolean); const st=((j.osm3s&&j.osm3s.timestamp_osm_base)||"").slice(0,10); setData(p,st); try{ localStorage.setItem(key,JSON.stringify({t:Date.now(),p,s:st})); }catch(e){} })
+    .catch(()=>{ if(seq!==loadSeq) return; $("meta").textContent=t("loadfail")+" ("+why+")"; K.toast(t("loadfail")); }); }
+let loadSeq=0;
 applyLang();
 load(BERN,false);
 })();

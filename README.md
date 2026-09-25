@@ -14,7 +14,7 @@ Live: **https://richardcervenka111-create.github.io/GoodPlaceToGo/**
 
 ## Daten
 
-Die Orte kommen live aus OpenStreetMap über die Overpass API (`overpass-api.de`). Beim Start wird die Region Bern (46.86–47.04 N, 7.30–7.60 E) geladen und 24 Stunden im Browser zwischengespeichert. Übertragen wird nur der Kartenausschnitt, nie der Standort. Lizenz ODbL, © OpenStreetMap-Beitragende. Karte: OSM-Kacheln. Kartenbibliothek Leaflet 1.9.4, vendored in `assets/leaflet`.
+Die Orte kommen live aus OpenStreetMap über die Overpass API (`overpass-api.de`, bei Ausfall `overpass.kumi.systems` und `overpass.private.coffee`). Beim Start wird die Stadt Bern mit Umland (46.89–47.01 N, 7.35–7.53 E) geladen und 24 Stunden im Browser zwischengespeichert. Übertragen wird nur der Kartenausschnitt, nie der Standort. Lizenz ODbL, © OpenStreetMap-Beitragende. Karte: OSM-Kacheln. Kartenbibliothek Leaflet 1.9.4, vendored in `assets/leaflet`.
 
 `data.js` ist bewusst leer (`window.POINTS=[]`). Wer einen Offline-Stand will, kann die Overpass-Abfrage aus `index.html` (`nwr["shop"="farm"]`, `nwr["amenity"="cafe"]`, `nwr["amenity"="restaurant"]`, `out center tags`) einmal ausführen und das Ergebnis als `window.POINTS` ablegen; die App zeigt dann diese Punkte, bis jemand einen Ausschnitt neu lädt.
 
