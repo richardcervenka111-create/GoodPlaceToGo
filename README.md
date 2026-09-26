@@ -12,6 +12,14 @@ Live: **https://richardcervenka111-create.github.io/GoodPlaceToGo/**
 - Name, Küche, Bio, Öffnungszeiten, Adresse, Telefon, Website, Rollstuhl, wenn in OSM erfasst
 - „Diesen Ausschnitt laden“ holt die Orte für den aktuellen Kartenausschnitt, auch ausserhalb von Bern
 
+## Auswahl
+
+- **Hofläden:** alle in Bern und Umgebung (46.84–47.06 N, 7.26–7.64 E): `shop=farm`, Orte mit „Hofladen/Hoflädeli“ im Namen und Hof-Automaten (`amenity=vending_machine` mit Milch, Eiern, Käse, Gemüse, Fleisch).
+- **Cafés:** handverlesen: NOY, Drip Roasters, Jusqua, Friend or Foe, Coffee Coaching Club, Bruin Café & Co, Schröter Kaffee, Rösterei.
+- **Restaurants:** handverlesen: Pizzeria da Nino, Burrito Bandito, Mr. Woof Woof.
+
+Die Auswahl steht als `CAFES` und `RESTS` in `index.html` (Namensbestandteile, ohne Gross-/Kleinschreibung und Akzente). Ein Ort erscheint nur, wenn er in OpenStreetMap unter diesem Namen erfasst ist.
+
 ## Daten
 
 Die Orte kommen live aus OpenStreetMap über die Overpass API (`overpass-api.de`, bei Ausfall `overpass.kumi.systems` und `overpass.private.coffee`). Beim Start wird die Stadt Bern mit Umland (46.89–47.01 N, 7.35–7.53 E) geladen und 24 Stunden im Browser zwischengespeichert. Übertragen wird nur der Kartenausschnitt, nie der Standort. Lizenz ODbL, © OpenStreetMap-Beitragende. Karte: OSM-Kacheln. Kartenbibliothek Leaflet 1.9.4, vendored in `assets/leaflet`.
